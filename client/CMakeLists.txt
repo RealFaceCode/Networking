@@ -8,7 +8,7 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS "hdr/*.h" "src/*.cpp")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../net/hdr)
 
-add_executable(Client ${SRC_FILES} main.cpp)
+add_executable(Client ${SRC_FILES})
 target_link_libraries(Client PRIVATE Net)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

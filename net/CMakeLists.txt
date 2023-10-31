@@ -6,7 +6,9 @@ enable_testing()
 
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS "hdr/*.h" "src/*.cpp")
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/hdr)
 add_library(Net ${SRC_FILES})
+target_compile_features(Net PUBLIC cxx_std_20)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
