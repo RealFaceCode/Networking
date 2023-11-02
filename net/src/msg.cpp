@@ -2,6 +2,8 @@
 #include "msg.h"
 #include "core.h"
 
+#include <bit>
+
 std::unordered_map<MsgType, MsgOrder> NetMSG::mOrders;
 
 NetMSG::NetMSG() = default;
