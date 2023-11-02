@@ -9,7 +9,6 @@ using NET_SOCKET = SOCKET;
 
 #elif __unix__
 using NET_SOCKET = int;
-#error NOT SUPPORTED YET!
 #else
 #error NOT SUPPORTED YET!
 #endif
