@@ -33,4 +33,8 @@
 
 # Directories
 /build
+/build-WIN
+/build-UNIX
+/bin
+/lib
 /.vscode
