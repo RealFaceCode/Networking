@@ -7,7 +7,7 @@
 
 using NET_SOCKET = SOCKET;
 
-#elif _UNIX
+#elif __unix__
 using NET_SOCKET = int;
 #error NOT SUPPORTED YET!
 #else

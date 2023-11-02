@@ -22,7 +22,8 @@ int main()
     msg.add(i);
 
     MsgOrder order({MsgOrderType::F32, MsgOrderType::I32, MsgOrderType::STRING});
-    NetMSG::AddOrder(::UserDefType(0), order);
+    NetMSG::AddOrder(::UserDefType(1), order);
     auto nOrder = NetMSG::GetOrder(::UserDefType(0));
+
     return 0;
 }  
