@@ -1,29 +1,32 @@
-#include "core.h"
 #include <iostream>
-#include <cstdint>
+
 #include "msg.h"
-#include "msgOrder.h"
+#include "socket.h"
+#include "core.h"
 
 int main()
 {
-    if(::IsBigEndian())
-        std::cout << "Big" << std::endl;
-    else
-        std::cout << "Little" << std::endl;
-    
-    uint16_t i = 0x00ff;
-    uint16_t ir = ::ReverseByteOrder(i);
+    if(!::init())
+        return -1;
 
-    std::cout << "Original Value: " << std::hex << i << std::endl;
-    std::cout << "New Value: " << std::hex << ir << std::endl;
+    NetMSG::AddOrder(::UserDefType(0), {NetMsgOrderType::STRING});
 
-    NetMSG msg;
+    NetSocket client(IPv4("127.0.0.1"), Port(12345), NetSocketProtocol::TCP, NetSocketType::CLIENT, true);
+    auto [msg, success] = client.connect();
+    if(!success)
+    {
+        std::cout << "Failed to connect!" << std::endl;
+        ::system("pause");
+        return -1;
+    }
 
-    msg.add(i);
+    std::string mStr(4000, 'X');
+    NetMSG msgSend(::UserDefType(0));
+    msgSend.addStr(mStr);
 
-    MsgOrder order({MsgOrderType::F32, MsgOrderType::I32, MsgOrderType::STRING});
-    NetMSG::AddOrder(::UserDefType(1), order);
-    auto nOrder = NetMSG::GetOrder(::UserDefType(0));
+    while(!client.send(msgSend))
+        std::cout << "Failed to send msg" << std::endl;
 
+    ::system("pause");
     return 0;
-}  
+}

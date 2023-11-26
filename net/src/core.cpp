@@ -3,6 +3,13 @@
 #include <algorithm>
 #include <cstdint>
 
+#ifdef _WIN32
+#include <winsock2.h>
+#elif __unix__
+#else
+#error NOT SUPPORTED YET!
+#endif
+
 bool IsBigEndian()
 {
     return (std::endian::native == std::endian::big);
@@ -35,3 +42,17 @@ template uint32_t ReverseByteOrder<uint32_t>(uint32_t type);
 template uint64_t ReverseByteOrder<uint64_t>(uint64_t type);
 template float ReverseByteOrder<float>(float type);
 template double ReverseByteOrder<double>(double type);
+
+bool init()
+{
+#ifdef _WIN32
+    if (WSADATA wsaData; ::WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
+        return false;
+#elif __unix__
+#error NOT SUPPORTED YET!
+#else
+#error NOT SUPPORTED YET!
+#endif
+
+    return true;
+}

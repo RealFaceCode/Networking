@@ -17,6 +17,7 @@ public:
     ~Port();
 
     std::string_view port() const;
+    uint16_t toInteger() const;
 
     bool operator==(const Port& port) const;
     explicit operator bool() const;

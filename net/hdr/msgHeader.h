@@ -2,13 +2,18 @@
 #define MSG_HEADER_H
 
 #include "msgType.h"
-#include "msgOrder.h"
+#include <string>
+#include <vector>
+#include <cstdint>
 
-struct MsgHeader
+struct NetMsgHeader
 {
+public:
     std::size_t mMsgSize = 0;
-    MsgType mMsgType = MsgType::NONE;
-    MsgOrder mOrder = {};
+    std::size_t mMsgOrderCount = 0;
+    NetMsgType mMsgType = NetMsgType::NONE;
+
+    std::vector<uint8_t> toVec() const;
 };
 
 #endif // MSG_HEADER_H

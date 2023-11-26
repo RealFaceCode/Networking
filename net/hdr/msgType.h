@@ -1,12 +1,16 @@
 #ifndef MSG_TYPE_H
 #define MSG_TYPE_H
 
-enum class MsgType : unsigned int
+enum class NetMsgType : unsigned int
 {
     NONE = 0,
-    LAST = NONE,
+    CONNECT_CLIENT_SIDE = 1,
+    CONNECT_SERVER_SIDE = 2,
+    DISCONECT = 3,
+    PING = 4,
+    LAST = PING,
 };
 
-MsgType UserDefType(unsigned int type);
+NetMsgType UserDefType(unsigned int type);
 
 #endif // MSG_TYPE_H

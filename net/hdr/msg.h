@@ -8,34 +8,56 @@
 #include <unordered_map>
 
 #include "msgHeader.h"
+#include "msgOrder.h"
+#include "package.h"
 
 class NetMSG
 {
 private:
-    MsgHeader mHeader = {};
+    NetMsgHeader mHeader = {};
+    NetMsgOrder mOrder = {};
+
     std::vector<std::uint8_t> mMsgBuffer;
-    static std::unordered_map<MsgType, MsgOrder> mOrders;
+    static std::unordered_map<NetMsgType, NetMsgOrder> mOrders;
 
 public:
     NetMSG();
-    explicit NetMSG(MsgType msgType);
+    explicit NetMSG(NetMsgType msgType);
     ~NetMSG();
 
     void add(const char* msg, std::size_t msgLen);
-    void add(const std::uint8_t* msg, std::size_t msgLen);
-    void add(std::string_view msg);
-    void add(const std::vector<std::uint8_t>& msg);
+    void add(const uint8_t* msg, std::size_t msgLen);
+    void addStr(std::string_view msg);
+    void addVec(const std::vector<std::uint8_t>& msg);
 
     template<typename Type> void add(Type msg);
+    template<typename Type> Type get();
 
-    void setType(MsgType msgType);
+    std::string getStr();
+
+    void setType(NetMsgType msgType);
+    void setHeader(const NetMsgHeader& header);
+    void setOrder(const NetMsgOrder& order);
 
     std::string getAsString() const;
     std::vector<std::uint8_t> getAsVec() const;
 
-    static void AddOrder(MsgType type, const MsgOrder& order);
-    static void AddOrder(MsgType type, const std::initializer_list<MsgOrderType>& list);
-    static MsgOrder GetOrder(MsgType type);
+    NetMsgHeader& getHeader();
+    const NetMsgHeader& getConstHeader() const;
+    NetMsgOrder& getMsgOrder();
+    const NetMsgOrder& getConstMsgOrder() const;
+
+    std::size_t getMsgSize() const;
+    std::size_t getOrderCount() const;
+    NetMsgType getMsgType() const;
+
+    std::vector<NetPackage> toPackages() const;
+
+    explicit operator bool() const;
+
+    static void AddOrder(NetMsgType type, const NetMsgOrder& order);
+    static void AddOrder(NetMsgType type, const std::initializer_list<NetMsgOrderType>& list);
+    static NetMsgOrder GetOrder(NetMsgType type);
 };
 
 #endif // MSG_H
