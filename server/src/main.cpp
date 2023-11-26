@@ -9,7 +9,6 @@ int main()
     if(!::init())
         return -1;
 
-    
     NetSocket server(IPv4("0", true), Port(12345), NetSocketProtocol::TCP, NetSocketType::SERVER, true);
     if(!server.listen())
     {
@@ -40,7 +39,7 @@ int main()
             }
         }
     }
-        
+
     ::system("pause");
     return 0;
 }
