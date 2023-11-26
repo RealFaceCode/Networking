@@ -72,11 +72,13 @@ bool NetSocket::sendOrder(const NetMsgOrder &order) const
 
     if(vec.empty())
         return true;
-    
+
+    std::size_t size = vec.size() * sizeof(NetMsgOrderType);
+
 #ifdef _WIN32
 
-    if(int result = ::send(mSocket, (const char*)(vec.data()), static_cast<int>(vec.size()), 0); 
-        result <= 0 || result != vec.size())
+    if(int result = ::send(mSocket, (const char*)(vec.data()), static_cast<int>(size), 0); 
+        result <= 0 || result != size)
         return false;
 #elif __unix__
 #else
@@ -134,7 +136,7 @@ NetMsgOrder NetSocket::recvOrder(std::size_t size) const
     NetMsgOrder order;
     order.ref().reserve(size);
     order.ref().resize(size);
-    
+     size *= sizeof(NetMsgOrderType);
 #ifdef _WIN32
     if (int result = ::recv(mSocket, (char*)&order.ref().at(0), static_cast<int>(size), 0);
             result != size)
