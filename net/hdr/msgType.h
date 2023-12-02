@@ -1,16 +1,19 @@
 #ifndef MSG_TYPE_H
 #define MSG_TYPE_H
 
-enum class NetMsgType : unsigned int
+namespace NetSock
 {
-    NONE = 0,
-    CONNECT_CLIENT_SIDE = 1,
-    CONNECT_SERVER_SIDE = 2,
-    DISCONECT = 3,
-    PING = 4,
-    LAST = PING,
-};
+    enum class NetMsgType : unsigned int
+    {
+        NONE = 0,
+        CONNECT_CLIENT_SIDE = 1,
+        CONNECT_SERVER_SIDE = 2,
+        DISCONECT = 3,
+        PING = 4,
+        LAST = PING,
+    };
 
-NetMsgType UserDefType(unsigned int type);
+    NetMsgType UserDefType(unsigned int type);
+}
 
 #endif // MSG_TYPE_H

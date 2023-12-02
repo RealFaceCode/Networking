@@ -1,24 +1,27 @@
 #include "package.h"
 
-NetPackage::NetPackage() = default;
-
-NetPackage::NetPackage(std::string_view data)
+namespace NetSock
 {
-    if(data.size() > ::MAX_MSG_LEN)
-        return;
+    NetPackage::NetPackage() = default;
 
-    mSize = data.size();
-    std::ranges::copy(data.begin(), data.end(), mData.begin());
-}
+    NetPackage::NetPackage(std::string_view data)
+    {
+        if(data.size() > MAX_MSG_LEN)
+            return;
 
-NetPackage::~NetPackage() = default;
+        mSize = data.size();
+        std::ranges::copy(data.begin(), data.end(), mData.begin());
+    }
 
-const char *NetPackage::data() const
-{
-    return mData.data();
-}
+    NetPackage::~NetPackage() = default;
 
-std::size_t NetPackage::size() const
-{
-    return mSize;
+    const char *NetPackage::data() const
+    {
+        return mData.data();
+    }
+
+    std::size_t NetPackage::size() const
+    {
+        return mSize;
+    }
 }

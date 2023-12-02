@@ -1,35 +1,38 @@
 #include "msgOrder.h"
 
-NetMsgOrder::NetMsgOrder() = default;
-
-NetMsgOrder::NetMsgOrder(const std::initializer_list<NetMsgOrderType>& list)
+namespace NetSock
 {
-    mMsgOrderValues.insert(mMsgOrderValues.end(), list.begin(), list.end());
-}
+    NetMsgOrder::NetMsgOrder() = default;
 
-NetMsgOrder::~NetMsgOrder() = default;
+    NetMsgOrder::NetMsgOrder(const std::initializer_list<NetMsgOrderType>& list)
+    {
+        mMsgOrderValues.insert(mMsgOrderValues.end(), list.begin(), list.end());
+    }
 
-void NetMsgOrder::addToOrder(NetMsgOrderType type)
-{
-    mMsgOrderValues.emplace_back(type);
-}
+    NetMsgOrder::~NetMsgOrder() = default;
 
-void NetMsgOrder::addOrder(const std::initializer_list<NetMsgOrderType>& list)
-{
-    mMsgOrderValues.insert(mMsgOrderValues.end(), list.begin(), list.end());
-}
+    void NetMsgOrder::addToOrder(NetMsgOrderType type)
+    {
+        mMsgOrderValues.emplace_back(type);
+    }
 
-std::vector<NetMsgOrderType> &NetMsgOrder::ref()
-{
-    return mMsgOrderValues;
-}
+    void NetMsgOrder::addOrder(const std::initializer_list<NetMsgOrderType>& list)
+    {
+        mMsgOrderValues.insert(mMsgOrderValues.end(), list.begin(), list.end());
+    }
 
-const std::vector<NetMsgOrderType> &NetMsgOrder::constRef() const
-{
-    return mMsgOrderValues;
-}
+    std::vector<NetMsgOrderType> &NetMsgOrder::ref()
+    {
+        return mMsgOrderValues;
+    }
 
-std::vector<NetMsgOrderType> NetMsgOrder::getMsgOrder() const
-{
-    return mMsgOrderValues;
+    const std::vector<NetMsgOrderType> &NetMsgOrder::constRef() const
+    {
+        return mMsgOrderValues;
+    }
+
+    std::vector<NetMsgOrderType> NetMsgOrder::getMsgOrder() const
+    {
+        return mMsgOrderValues;
+    }
 }

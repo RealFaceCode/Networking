@@ -6,10 +6,14 @@
 
 int main()
 {
-    if(!::init())
+    if(!NetSock::Init())
         return -1;
 
-    NetSocket server(IPv4("0", true), Port(12345), NetSocketProtocol::TCP, NetSocketType::SERVER, true);
+    NetSock::NetSocket server(NetSock::IPv4("0", true),
+                            NetSock::Port(12345),
+                            NetSock::NetSocketProtocol::TCP,
+                            NetSock::NetSocketType::SERVER,
+                            true);
     if(!server.listen())
     {
         std::cout << "Failed to listen!" << std::endl;
@@ -17,7 +21,7 @@ int main()
         return -1;
     }
 
-    std::vector<NetSocket> connections;
+    std::vector<NetSock::NetSocket> connections;
 
     while(true)
     {

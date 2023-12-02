@@ -6,12 +6,16 @@
 
 int main()
 {
-    if(!::init())
+    if(!NetSock::Init())
         return -1;
 
-    NetMSG::AddOrder(::UserDefType(0), {NetMsgOrderType::STRING});
+    NetSock::NetMSG::AddOrder(NetSock::UserDefType(0), {NetSock::NetMsgOrderType::STRING});
 
-    NetSocket client(IPv4("127.0.0.1"), Port(12345), NetSocketProtocol::TCP, NetSocketType::CLIENT, true);
+    NetSock::NetSocket client(NetSock::IPv4("127.0.0.1"),
+                            NetSock::Port(12345),
+                            NetSock::NetSocketProtocol::TCP,
+                            NetSock::NetSocketType::CLIENT,
+                            true);
     auto [msg, success] = client.connect();
     if(!success)
     {
@@ -21,7 +25,7 @@ int main()
     }
 
     std::string mStr(4000, 'X');
-    NetMSG msgSend(::UserDefType(0));
+    NetSock::NetMSG msgSend(NetSock::UserDefType(0));
     msgSend.addStr(mStr);
 
     while(!client.send(msgSend))

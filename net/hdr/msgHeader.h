@@ -6,14 +6,16 @@
 #include <vector>
 #include <cstdint>
 
-struct NetMsgHeader
+namespace NetSock
 {
-public:
-    std::size_t mMsgSize = 0;
-    std::size_t mMsgOrderCount = 0;
-    NetMsgType mMsgType = NetMsgType::NONE;
+    class NetMsgHeader
+    {
+    public:
+        std::size_t mMsgSize = 0;
+        std::size_t mMsgOrderCount = 0;
+        NetMsgType mMsgType = NetMsgType::NONE;
 
-    std::vector<uint8_t> toVec() const;
-};
-
+        std::vector<uint8_t> toVec() const;
+    };
+}
 #endif // MSG_HEADER_H
