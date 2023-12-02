@@ -13,11 +13,10 @@ int main()
 
     NetSock::NetSocket client(NetSock::IPv4("127.0.0.1"),
                             NetSock::Port(12345),
-                            NetSock::NetSocketProtocol::TCP,
+                            NetSock::NetSocketProtocol::UDP,
                             NetSock::NetSocketType::CLIENT,
                             true);
-    auto [msg, success] = client.connect();
-    if(!success)
+    if(!client.connect())
     {
         std::cout << "Failed to connect!" << std::endl;
         ::system("pause");

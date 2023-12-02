@@ -76,9 +76,9 @@ namespace NetSock
 
         bool block(bool blocking) const;
 
-        std::pair<NetMSG, bool> connect(const NetMSG& msg = NetMSG(NetMsgType::CONNECT_CLIENT_SIDE));
+        bool connect();
         bool listen();
-        std::pair<NetSocket, NetMSG> accept(const NetMSG& msg = NetMSG(NetMsgType::CONNECT_SERVER_SIDE)) const;
+        NetSocket accept() const;
         bool disconnect(const NetMSG& msg = NetMSG(NetMsgType::DISCONECT)) const;
 
         bool send(const NetMSG& msg) const;
@@ -93,17 +93,30 @@ namespace NetSock
 
     private:
         void setHandle(NET_SOCKET handle);
-        bool sendHeader(const NetMsgHeader& header) const;
-        bool sendOrder(const NetMsgOrder& order) const;
-        std::size_t sendPackages(const std::vector<NetPackage>& packages) const;
-        NetMsgHeader recvHeader() const;
-        NetMsgOrder recvOrder(std::size_t size) const;
-        std::vector<NetPackage> recvPackages(std::size_t maxMsgLen) const;
+        //TCP IO
+        bool sendHeaderTCP(const NetMsgHeader& header) const;
+        bool sendOrderTCP(const NetMsgOrder& order) const;
+        std::size_t sendPackagesTCP(const std::vector<NetPackage>& packages) const;
+        NetMsgHeader recvHeaderTCP() const;
+        NetMsgOrder recvOrderTCP(std::size_t size) const;
+        std::vector<NetPackage> recvPackagesTCP(std::size_t maxMsgLen) const;
         bool sendTCP(const NetMSG& msg) const;
+        NetMSG recvTCP() const;    
+        //UDP IO
+        bool sendHeaderUDP(const NetMsgHeader& header) const;
+        bool sendOrderUDP(const NetMsgOrder& order) const;
+        std::size_t sendPackagesUDP(const std::vector<NetPackage>& packages) const;
+        NetMsgHeader recvHeaderUDP() const;
+        NetMsgOrder recvOrderUDP(std::size_t size) const;
+        std::vector<NetPackage> recvPackagesUDP(std::size_t maxMsgLen) const;
         bool sendUDP(const NetMSG& msg) const;
-        NetMSG recvTCP() const;
         NetMSG recvUDP() const;
+
         std::pair<NetSocketConnectionInfo, std::string> waitForConnection(long time = 10) const;
+        NetSocket acceptTCP() const;
+        NetSocket acceptUDP() const;
+        bool connectTCP() ;
+        bool connectUDP();
     };
 }
 

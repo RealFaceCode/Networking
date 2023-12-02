@@ -29,68 +29,6 @@ namespace NetSock
 
     NetSocket::~NetSocket() = default;
 
-    void NetSocket::setIP(const IPv4 &ip)
-    {
-        mIPv4 = ip;
-        mSockIPType = NetSocketIPType::IPv4;
-    }
-
-    void NetSocket::setIP(const IPv6 &ip)
-    {
-        mIPv6 = ip;
-        mSockIPType = NetSocketIPType::IPv6;
-    }
-
-    void NetSocket::setPort(const Port &port)
-    {
-        mPort = port;
-    }
-
-    void NetSocket::setProtocol(NetSocketProtocol sProt)
-    {
-        mSockProt = sProt;
-    }
-
-    void NetSocket::setType(NetSocketType sType)
-    {
-        mSockType = sType;
-    }
-
-    IPv4 NetSocket::getIPv4() const
-    {
-        return mIPv4;
-    }
-
-    IPv6 NetSocket::getIPv6() const
-    {
-        return mIPv6;
-    }
-
-    std::string NetSocket::getIP() const
-    {
-        if(mIPv4)
-            return mIPv4.ip().data();
-        else if(mIPv6)
-            return mIPv6.ip().data();
-        else
-            return std::string();
-    }
-
-    Port NetSocket::getPort() const
-    {
-        return mPort;
-    }
-
-    NetSocketProtocol NetSocket::getSockProt() const
-    {
-        return mSockProt;
-    }
-
-    NetSocketType NetSocket::getSockType() const
-    {
-        return mSockType;
-    }
-
     bool NetSocket::block(bool blocking) const
     {
         unsigned long mode = 0;
@@ -107,89 +45,23 @@ namespace NetSock
         return true;
     }
 
-    std::pair<NetMSG, bool> NetSocket::connect(const NetMSG& msg)
+    bool NetSocket::connect()
     {
         if(mSockType == NetSocketType::SERVER || mSockType == NetSocketType::NONE)
-            return {NetMSG(), false};
+            return false;
 
-    #if _WIN32
-
-        addrinfo* result = nullptr;
-        addrinfo const* ptr = nullptr;
-        addrinfo hints;
-
-        ZeroMemory(&hints, sizeof(hints));
-
-        if(mIPv4)
+        switch (mSockProt)
         {
-            hints.ai_family = AF_INET;
+        using enum NetSock::NetSocketProtocol;
+        case NONE:
+            return false;
+        case TCP:
+            return connectTCP();
+        case UDP:
+            return connectUDP();
+        default:
+            return false;
         }
-        else if(mIPv6)
-        {
-            hints.ai_family = AF_INET6;
-        }
-        else 
-            return {NetMSG(), false};
-
-        switch(mSockProt)
-        {
-            using enum NetSocketProtocol;
-            case NONE:
-                return {NetMSG(), false};
-            case UDP:
-                hints.ai_socktype = SOCK_DGRAM;
-                hints.ai_protocol = IPPROTO_UDP;
-                break;
-            case TCP:
-                hints.ai_socktype = SOCK_STREAM;
-                hints.ai_protocol = IPPROTO_TCP;
-                break;
-            default:
-                return {NetMSG(), false};
-        }
-
-        if (const char* addr = mIPv4 ? mIPv4.ip().data() : mIPv6.ip().data(); 
-            ::getaddrinfo(addr, mPort.port().data(), &hints, &result) != 0)
-            return {NetMSG(), false};
-
-        //TODO: loop all addr
-        ptr = result;
-
-        mSocket = ::socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-        if (mSocket == INVALID_SOCKET) 
-        {
-            ::freeaddrinfo(result);
-            return {NetMSG(), false};
-        }
-
-        if(!block(mBlock))
-        {
-            ::freeaddrinfo(result);
-            return {NetMSG(), false};
-        }
-
-        if(mSockProt == NetSocketProtocol::TCP && ::connect(mSocket, ptr->ai_addr, (int)ptr->ai_addrlen) == SOCKET_ERROR
-        && waitForConnection().first != NetSocketConnectionInfo::SUCCESS)
-        {
-            std::cout << ::strerror(errno) << std::endl;
-            ::closesocket(mSocket);
-            ::freeaddrinfo(result);
-            mSocket = INVALID_SOCKET;
-            return {NetMSG(), false};
-        }
-
-        ::freeaddrinfo(result);
-    #elif __unix__
-    #else
-    #endif
-
-        if(msg.getMsgType() == NetMsgType::CONNECT_CLIENT_SIDE && !mBlock)
-        {
-            send(msg);
-            return {recv(), true};
-        }
-        else 
-            return {NetMSG(), true};
     }
 
     bool NetSocket::listen()
@@ -205,13 +77,9 @@ namespace NetSock
         hints.ai_flags = AI_PASSIVE;
 
         if(mIPv4)
-        {
             hints.ai_family = AF_INET;
-        }
         else if(mIPv6)
-        {
             hints.ai_family = AF_INET6;
-        }
         else 
             return false;
 
@@ -268,61 +136,23 @@ namespace NetSock
         return true;
     }
 
-    std::pair<NetSocket, NetMSG> NetSocket::accept(const NetMSG& msg) const
+    NetSocket NetSocket::accept() const
     {
         if(mSockType == NetSocketType::CLIENT || mSockType == NetSocketType::NONE)
-            return {NetSocket(), NetMSG()};
+            return NetSocket();
 
-        NetSocket inSock;
-
-    #if _WIN32
-
-        if(mSockProt == NetSocketProtocol::TCP)
+        switch (mSockProt)
         {
-            auto clientSocket = INVALID_SOCKET;
-            sockaddr_in clientAddress;
-            int clientAddressSize = sizeof(clientAddress);
-
-            clientSocket = ::accept(mSocket, (sockaddr*)&clientAddress, &clientAddressSize);
-            if (clientSocket == INVALID_SOCKET)
-            {
-                //::closesocket(mSocket);
-                return {NetSocket(), NetMSG()};
-            }
-
-            inSock.mSocket = clientSocket;
-            inSock.mPort = mPort;
-            inSock.mSockProt = mSockProt;
-            inSock.mSockType = NetSocketType::CLIENT;
-
-            if(char ip_str[INET_ADDRSTRLEN]; ::inet_ntop(AF_INET, &clientAddress.sin_addr, ip_str, INET_ADDRSTRLEN) != nullptr)
-            {
-                std::string addr = ip_str;
-                if(addr.find(".") != std::string::npos)
-                {
-                    inSock.mIPv4 = IPv4(addr);
-                    inSock.mSockIPType = NetSocketIPType::IPv4;
-                }
-                else if(addr.find(":") != std::string::npos)
-                {
-                    inSock.mIPv6 = IPv6(addr);
-                    inSock.mSockIPType = NetSocketIPType::IPv6;
-                }
-            }
-
-            inSock.setPort(Port(clientAddress.sin_port));
+        using enum NetSock::NetSocketProtocol;
+        case NONE:
+            return NetSocket();
+        case TCP:
+            return acceptTCP();
+        case UDP:
+            return acceptUDP();
+        default:
+            return NetSocket();
         }
-    #elif __unix__
-    #else
-    #endif
-
-        if(msg.getMsgType() == NetMsgType::CONNECT_SERVER_SIDE && !mBlock)
-        {
-            inSock.send(msg);
-            return {inSock, inSock.recv()};
-        }
-        else
-            return {inSock, NetMSG()};
     }
 
     bool NetSocket::disconnect(const NetMSG& msg) const
@@ -355,19 +185,9 @@ namespace NetSock
         return SOCKET_ERROR == ::shutdown(mSocket, SD_RECEIVE);
     }
 
-    NET_SOCKET NetSocket::getHandle() const
-    {
-        return mSocket;
-    }
-
     NetSocket::operator bool() const
     {
         return (mIPv4 || mIPv6) && mPort && mSockProt != NetSocketProtocol::NONE && mSockType != NetSocketType::NONE;
-    }
-
-    void NetSocket::setHandle(NET_SOCKET handle)
-    {
-        mSocket = handle;
     }
 
     std::pair<NetSocketConnectionInfo, std::string> NetSocket::waitForConnection(long time) const

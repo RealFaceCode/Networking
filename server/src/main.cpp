@@ -11,7 +11,7 @@ int main()
 
     NetSock::NetSocket server(NetSock::IPv4("0", true),
                             NetSock::Port(12345),
-                            NetSock::NetSocketProtocol::TCP,
+                            NetSock::NetSocketProtocol::UDP,
                             NetSock::NetSocketType::SERVER,
                             true);
     if(!server.listen())
@@ -25,8 +25,7 @@ int main()
 
     while(true)
     {
-        auto [newConnection, connectionMsg] = server.accept();
-        if(newConnection)
+        if(auto newConnection = server.accept(); newConnection)
         {
             std::cout << "new connection: " << newConnection.getIP() << ":" << newConnection.getPort().port() << std::endl;
             connections.emplace_back(newConnection);

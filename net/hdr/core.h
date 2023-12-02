@@ -75,5 +75,4 @@ namespace NetSock
     bool Init();
 }
 
-
 #endif // CORE_H
